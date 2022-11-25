@@ -1,0 +1,60 @@
+server:
+  port: ${PORT_MS:8080}
+
+app:
+  realm: digitalmedia
+  uri-keycloak-login: ${KEYCLOAK_URL:http://localhost:8082/}login
+
+spring:
+  application:
+    name: api-gateway
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: ${KEYCLOAK_URL:http://localhost:8082/}realms/${app.realm}
+            authorization-uri: http://localhost:8082/realms/${app.realm}/protocol/openid-connect/auth
+            token-uri: ${KEYCLOAK_URL:http://localhost:8082/}realms/${app.realm}/protocol/openid-connect/token
+#            introspection-uri: http://localhost:8082/realms/digitalmedia/protocol/openid-connect/token/introspect
+            user-info-uri: http://localhost:8082/realms/${app.realm}/protocol/openid-connect/userinfo
+#            end_session_endpoint: http://localhost:8082/realms/digitalmedia/protocol/openid-connect/logout
+            jwk-set_uri: http://localhost:8082/realms/digitalmedia/protocol/openid-connect/certs
+#            check_session_iframe: http://localhost:8082/realms/digitalmedia/protocol/openid-connect/login-status-iframe.html
+            scope: openid
+        registration:
+          gateway-api:
+            provider: keycloak
+            client-id: api-gateway
+            client-secret: 745MnUKUHG5bp0RAwS8BjTkq9WrPvYDb
+            authorization-grant-type: client_credentials
+            redirect-uri: 'http://localhost:8080/login/oauth2/code/keycloak'
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      default-filters:
+        - TokenRelay
+      routes:
+        - id: moviesRoute
+          uri: lb://movies-service
+          predicates:
+            - Path=/movies/**
+          filters:
+            - StripPrefix=2
+        - id: usersRoute
+          uri: lb://users-service
+          predicates:
+            - Path=/users/**
+          filters:
+            - StripPrefix=2
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+
+logging:
+  level:
+    org.springframework.web.client.RestTemplate: DEBUG

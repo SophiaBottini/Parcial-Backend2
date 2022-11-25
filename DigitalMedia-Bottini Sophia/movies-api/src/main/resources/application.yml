@@ -1,0 +1,59 @@
+server:
+  port: ${PORT_MS:8086}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+
+management:
+  endpoints:
+    web:
+      exposure.include: beans, env, health, info, metrics, mappings
+  endpoint:
+    health:
+      show-details: always
+
+springdoc:
+  show-actuator: true
+  swagger-ui:
+    groups-order: DESC
+    disable-swagger-default-url: true
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+
+app:
+  cors:
+    allowed-origins: http://localhost:3000
+  nimbus:
+      urlDecoder: ${spring.security.oauth2.client.provider.keycloak.issuer-uri}/protocol/openid-connect/certs
+  realm: digitalmedia
+
+spring:
+  application:
+    name: movies-service
+  data:
+    mongodb:
+      authentication-database: admin
+      username: rootuser
+      password: rootpass
+      database: moviesdb
+      port: 27017 #El puerto privado de nuestro contenedor de Docker, no el publico
+      host: ${DB_HOST:localhost}
+  main:
+    allow-circular-references: true
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: ${KEYCLOAK_URL:http://localhost:8082/}realms/${app.realm}
+        registration:
+          keycloak:
+            client-id: microservicios
+            client-secret: Xhevm3MBBZPvc6zSOvammf5aEz11vIOM
+            redirect-uri: http://localhost:8085

@@ -1,0 +1,60 @@
+app:
+  cors:
+    allowed-origins: http://localhost:3000
+  nimbus:
+    urlDecoder: ${spring.security.oauth2.client.provider.keycloak.issuer-uri}/protocol/openid-connect/certs
+  realm: digitalmedia
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+
+server:
+  port: ${PORT_MS:8087}
+
+dh:
+  keycloak:
+    serverUrl: ${KEYCLOAK_URL:http://localhost:8082/}
+    realm: ${app.realm}
+    clientId: microservicios
+    clientSecret: Xhevm3MBBZPvc6zSOvammf5aEz11vIOM
+
+springdoc:
+  show-actuator: true
+  swagger-ui:
+    groups-order: DESC
+    disable-swagger-default-url: true
+management:
+  endpoints:
+    web:
+      exposure.include: beans, env, health, info, metrics, mappings
+  endpoint:
+    health:
+      show-details: always
+
+spring:
+  application:
+    name: users-service
+  data:
+    mongodb:
+      authentication-database: admin
+      username: rootuser
+      password: rootpass
+      database: usersdb
+      port: 27017 #El puerto privado de nuestro contenedor de Docker, no el publico
+#      port: 27018
+      host: ${DB_HOST:localhost}
+  main:
+    allow-circular-references: true
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: ${KEYCLOAK_URL:http://localhost:8082/}realms/${app.realm}
+        registration:
+          keycloak:
+            client-id: microservicios
+            client-secret: Xhevm3MBBZPvc6zSOvammf5aEz11vIOM
+            redirect-uri: http://localhost:8085

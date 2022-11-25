@@ -1,0 +1,41 @@
+server:
+  port: ${PORT:8088}
+
+app:
+  realm: digitalmedia
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+
+spring:
+  application:
+    name: bills-service
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:3306/BillsDB
+    username: root
+    password: rootpass
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: ${KEYCLOAK_URL:http://localhost:8082/}realms/${app.realm}
+            token-uri: ${KEYCLOAK_URL:http://localhost:8082/}realms/${app.realm}/protocol/openid-connect/token
+            scope: openid
+        registration:
+          keycloak:
+            authorization-grant-type: client_credentials
+            client-id: internal
+            client-secret: Lt3qO93ZYAADe0JieYL28sI9Ndla8WNl
+            redirect-uri: http://localhost:8084/
